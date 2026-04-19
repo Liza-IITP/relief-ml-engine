@@ -288,6 +288,7 @@ class XGBoostOutcomePredictor:
             eval_metric="auc",
             random_state=42,
             verbosity=0,
+            early_stopping_rounds=30,
         )
         self.feature_names = FEATURE_NAMES
         self.is_fitted = False
@@ -363,7 +364,7 @@ class SGDResidualCorrector:
             max_iter=1,
             warm_start=True,
             random_state=42,
-            class_weight="balanced",
+            class_weight=None,
         )
         self.is_fitted  = False
         self.n_updates  = 0
