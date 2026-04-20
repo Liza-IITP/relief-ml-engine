@@ -274,7 +274,7 @@ class XGBoostOutcomePredictor:
 
     def __init__(self):
         self.model = xgb.XGBClassifier(
-            n_estimators=400,
+            n_estimators=50,
             max_depth=5,
             learning_rate=0.04,
             subsample=0.80,
@@ -509,7 +509,7 @@ class LambdaRankVolunteerRanker:
         }
         self.model = lgb.train(
             params, train_ds,
-            num_boost_round=200,
+            num_boost_round=50,
             valid_sets=[train_ds],
             callbacks=[
                 lgb.early_stopping(30, verbose=False),
@@ -768,7 +768,7 @@ def initialize_models() -> dict:
     Generate mock historical data and train models once, returning them to be held in memory.
     """
     log.info("Initializing models on server startup...")
-    records = generate_historical_data(2000)
+    records = generate_historical_data(500)
     X_all, y_all = records_to_Xy(records)
     
     split = int(0.80 * len(records))
