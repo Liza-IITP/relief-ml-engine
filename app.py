@@ -18,6 +18,8 @@ app = Flask(__name__)
 import threading
 
 models = None
+training_started = False
+training_lock = threading.Lock()
 
 def init_models_bg():
     global models
@@ -28,8 +30,6 @@ def init_models_bg():
     except Exception as e:
         log.error(f"Failed to initialize models on startup: {e}")
 
-# Initialize ML Models on Startup in a background thread so Gunicorn binds instantly
-threading.Thread(target=init_models_bg, daemon=True).start()
 
 # Initialize Supabase Client
 supabase_url = os.environ.get("SUPABASE_URL")
@@ -116,6 +116,16 @@ def match_webhook():
 @app.route("/health", methods=["GET"])
 def health_check():
     """Simple health check endpoint for Render."""
+    global training_started
+    
+    # Trigger background training gracefully on first hit
+    if models is None:
+        with training_lock:
+            if not training_started:
+                training_started = True
+                log.info("Lazy initialization triggered by /health endpoint...")
+                threading.Thread(target=init_models_bg, daemon=True).start()
+
     return jsonify({
         "status": "up",
         "models_loaded": models is not None,
