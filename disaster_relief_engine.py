@@ -288,6 +288,7 @@ class XGBoostOutcomePredictor:
             eval_metric="auc",
             random_state=42,
             verbosity=0,
+            n_jobs=1,
             early_stopping_rounds=30,
         )
         self.feature_names = FEATURE_NAMES
@@ -505,6 +506,7 @@ class LambdaRankVolunteerRanker:
             "lambda_l2":        0.1,
             "verbosity":        -1,
             "seed":             42,
+            "num_threads":      1,
             "label_gain":       [0, 1, 3, 7],   # exponential gain for levels 0-3
         }
         self.model = lgb.train(
