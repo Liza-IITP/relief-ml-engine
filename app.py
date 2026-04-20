@@ -15,16 +15,21 @@ log = logging.getLogger("flask_app")
 
 app = Flask(__name__)
 
-# Initialize ML Models on Startup
-log.info("Starting Flask application. Initializing models...")
-try:
-    models = initialize_models()
-    log.info("Models successfully held in memory.")
-except Exception as e:
-    log.error(f"Failed to initialize models on startup: {e}")
-    # You might want to raise here depending on deployment requirements
-    # but we'll allow startup to proceed and just log the error.
-    models = None
+import threading
+
+models = None
+
+def init_models_bg():
+    global models
+    log.info("Starting background thread for ML models initialization...")
+    try:
+        models = initialize_models()
+        log.info("Models successfully held in memory.")
+    except Exception as e:
+        log.error(f"Failed to initialize models on startup: {e}")
+
+# Initialize ML Models on Startup in a background thread so Gunicorn binds instantly
+threading.Thread(target=init_models_bg, daemon=True).start()
 
 # Initialize Supabase Client
 supabase_url = os.environ.get("SUPABASE_URL")
